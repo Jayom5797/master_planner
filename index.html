@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Planner — BOM vs PO vs PR</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Master Planner</h1>
+    <p class="subtitle">Merge Engineering BOM, PO stage &amp; PR stage into one plan</p>
+  </header>
+
+  <main class="container">
+    <section class="uploads">
+      <div class="upload-card" data-key="bom">
+        <div class="upload-title">1. Engineering BOM</div>
+        <label class="file-drop">
+          <input type="file" accept=".xlsx,.xls,.csv" data-input="bom" />
+          <span class="file-drop-text">Click or drop Excel/CSV</span>
+        </label>
+        <div class="file-status" data-status="bom">No file</div>
+      </div>
+
+      <div class="upload-card" data-key="po">
+        <div class="upload-title">2. PO Stage</div>
+        <label class="file-drop">
+          <input type="file" accept=".xlsx,.xls,.csv" data-input="po" />
+          <span class="file-drop-text">Click or drop Excel/CSV</span>
+        </label>
+        <div class="file-status" data-status="po">No file</div>
+      </div>
+
+      <div class="upload-card" data-key="pr">
+        <div class="upload-title">3. PR Stage</div>
+        <label class="file-drop">
+          <input type="file" accept=".xlsx,.xls,.csv" data-input="pr" />
+          <span class="file-drop-text">Click or drop Excel/CSV</span>
+        </label>
+        <div class="file-status" data-status="pr">No file</div>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="generateBtn" class="btn btn-primary" disabled>Generate Table</button>
+      <button id="downloadXlsxBtn" class="btn" disabled>Download Excel</button>
+      <button id="downloadCsvBtn" class="btn" disabled>Download CSV</button>
+      <button id="resetBtn" class="btn btn-ghost">Reset</button>
+    </section>
+
+    <section id="messages" class="messages" aria-live="polite"></section>
+
+    <section class="result">
+      <div id="summary" class="summary"></div>
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>Item Code</th>
+              <th>BOM Qty</th>
+              <th>PO Qty</th>
+              <th>PR Qty</th>
+              <th>X (PO + PR)</th>
+              <th>Y (BOM − X)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
