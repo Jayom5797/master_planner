@@ -38,9 +38,23 @@ Colors appear both in the on-screen table and as real cell fills in the download
 
 ## Pages
 - **Multi-File** (`index.html`) — one Excel/CSV per stage (BOM, PO, PR, On Hand).
-- **Single File** (`single.html`) — one workbook with multiple sheets. You map each role (BOM/PO/PR/On Hand) to a sheet; it defaults to sheet order (Sheet1=BOM, Sheet2=PO, Sheet3=PR, Sheet4=On Hand) and lets you override.
+- **Single File** (`single.html`) — one workbook with multiple sheets. You map each role (BOM/PO/PR/On Hand) to a sheet; it defaults to sheet order (Sheet1=BOM, Sheet2=PO, Sheet3=PR, Sheet4=On Hand) and lets you override. Includes a **Download Template** button (blank workbook with sheets BOM, PO, PR, ON HAND).
+- **BOM Pivot** (`pivot.html`) — one workbook with many project BOM sheets → two master pivots.
 
-Both pages share the same merge/status/download logic in `core.js` and are linked from a top navbar.
+All pages share the same logic in `core.js` and are linked from a top navbar.
+
+### BOM Pivot
+Merges multiple project BOM sheets into two masters, each with **Item Code** + **Qty**:
+
+- **Piping master** — sheets whose name contains `pip` (catches `PIPING` and `PIPNG`).
+- **Non-Piping master** — all other BOM sheets.
+
+Details:
+- The header row is detected automatically as the first row containing both `ERP CODE` and `QTY`; those columns (plus `ENGG REMARKS`) are located by name.
+- Quantities are summed by `ERP CODE` across all sheets in each group.
+- Rows whose `ENGG REMARKS` indicate deletion are ignored — matched fuzzily (any case, extra words like "deleted by team", and common misspellings such as "deletd").
+- Sheets without an `ERP CODE`/`QTY` header (e.g. a stray `Sheet1`) are skipped and reported.
+- Download both masters as one Excel (two sheets: `Non-Piping BOM`, `Piping BOM`) or each as CSV.
 
 ## Tech
 - Plain HTML/CSS/JS, no build step, no backend.

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Planner — BOM Pivot</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Master Planner</div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Multi-File</a>
+      <a href="single.html" class="nav-link">Single File</a>
+      <a href="pivot.html" class="nav-link active">BOM Pivot</a>
+    </div>
+  </nav>
+
+  <header class="app-header">
+    <h1>BOM Pivot</h1>
+    <p class="subtitle">Merge many project BOMs into a Piping and a Non-Piping master</p>
+  </header>
+
+  <main class="container">
+    <section class="uploads single">
+      <div class="upload-card wide" data-key="workbook">
+        <div class="upload-title">Project BOM Workbook (.xlsx / .xls)</div>
+        <label class="file-drop">
+          <input type="file" accept=".xlsx,.xls" id="workbookInput" />
+          <span class="file-drop-text">Click or drop a workbook containing multiple BOM sheets</span>
+        </label>
+        <div class="file-status" id="workbookStatus">No file</div>
+        <p class="mapping-hint" style="margin-top:12px">
+          Each BOM sheet must have <strong>ERP CODE</strong> and <strong>QTY</strong> columns
+          (header detected automatically). Sheets whose name contains
+          <strong>“pip”</strong> are treated as <strong>Piping</strong>; the rest as
+          <strong>Non-Piping</strong>. Rows whose <strong>ENGG REMARKS</strong> mention
+          deletion are ignored. Sheets without an ERP CODE/QTY header are skipped.
+        </p>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="generateBtn" class="btn btn-primary" disabled>Generate Masters</button>
+      <button id="downloadXlsxBtn" class="btn" disabled>Download Excel (both)</button>
+      <button id="resetBtn" class="btn btn-ghost">Reset</button>
+    </section>
+
+    <section id="messages" class="messages" aria-live="polite"></section>
+
+    <section id="sheetReport" class="sheet-report" hidden>
+      <div class="mapping-title">Sheet classification</div>
+      <div class="table-wrap" style="max-height:240px">
+        <table id="sheetTable">
+          <thead>
+            <tr><th>Sheet</th><th>Group</th><th>Rows kept</th><th>Deleted skipped</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="pivot-results">
+      <div class="pivot-panel">
+        <div class="pivot-head">
+          <h2>Non-Piping Master</h2>
+          <button id="csvNonPipingBtn" class="btn btn-ghost" disabled>Download CSV</button>
+        </div>
+        <div id="nonPipingSummary" class="summary"></div>
+        <div class="table-wrap">
+          <table id="nonPipingTable">
+            <thead><tr><th>Item Code</th><th>Qty</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pivot-panel">
+        <div class="pivot-head">
+          <h2>Piping Master</h2>
+          <button id="csvPipingBtn" class="btn btn-ghost" disabled>Download CSV</button>
+        </div>
+        <div id="pipingSummary" class="summary"></div>
+        <div class="table-wrap">
+          <table id="pipingTable">
+            <thead><tr><th>Item Code</th><th>Qty</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="core.js"></script>
+  <script src="pivot.js"></script>
+</body>
+</html>

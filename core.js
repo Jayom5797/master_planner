@@ -51,6 +51,113 @@
     return Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(4)).toString();
   }
 
+  // ---- BOM pivot helpers --------------------------------------------------
+
+  // A row is dropped if the ENGG REMARKS says the item was deleted. This must
+  // tolerate any case, extra words ("deleted by team", "party to delete"), and
+  // common misspellings of "delete" (deletd, delted, deleated, deleteed, ...).
+  // Strategy: strip to letters, then look for a d-e?-l-e?-(a)?-t stem, which
+  // matches delete/deleted/deletd/delted/deleated etc. without matching safe
+  // remarks like "added", "model is updated", "r01".
+  function isDeletedRemark(remark) {
+    const s = String(remark == null ? "" : remark).toLowerCase();
+    if (!s.trim()) return false;
+    // Normalise: keep only a-z and spaces.
+    const letters = s.replace(/[^a-z ]/g, " ");
+    return /\bde+l+e*a*t/.test(letters) || /\bdle+t/.test(letters);
+  }
+
+  // Piping BOMs are identified by "pip" appearing in the sheet name (covers
+  // both "PIPING" and the misspelled "PIPNG").
+  function isPipingSheetName(name) {
+    return /pip/i.test(String(name));
+  }
+
+  // Find the header row of a BOM sheet: the first row (within the first 20)
+  // that contains both an "ERP CODE" and a "QTY" cell. Returns -1 if none.
+  function findBomHeaderRow(rows) {
+    const limit = Math.min(rows.length, 20);
+    for (let i = 0; i < limit; i++) {
+      const r = (rows[i] || []).map((c) => String(c).trim().toUpperCase());
+      if (r.includes("ERP CODE") && r.includes("QTY")) return i;
+    }
+    return -1;
+  }
+
+  // Parse one BOM sheet: locate columns by header name (ERP CODE, QTY,
+  // ENGG REMARKS), then accumulate qty per code into `map`, skipping blank
+  // codes, total labels, and deleted rows.
+  // Returns { ok, kept, deleted } — ok=false when no header row was found.
+  function accumulateBomSheet(sheet, map) {
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+      header: 1,
+      raw: true,
+      defval: "",
+      blankrows: false,
+    });
+    const h = findBomHeaderRow(rows);
+    if (h < 0) return { ok: false, kept: 0, deleted: 0 };
+
+    const hdr = (rows[h] || []).map((c) => String(c).trim());
+    const erpIdx = hdr.findIndex((c) => c.toUpperCase() === "ERP CODE");
+    const qtyIdx = hdr.findIndex((c) => c.toUpperCase() === "QTY");
+    const remIdx = hdr.findIndex((c) => c.toUpperCase().includes("ENGG REMARK"));
+
+    let kept = 0;
+    let deleted = 0;
+    for (let i = h + 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row) continue;
+      const code = normalizeCode(row[erpIdx]);
+      if (code === "" || isTotalLabel(code)) continue;
+      if (remIdx >= 0 && isDeletedRemark(row[remIdx])) {
+        deleted++;
+        continue;
+      }
+      map.set(code, (map.get(code) || 0) + toNumber(row[qtyIdx]));
+      kept++;
+    }
+    return { ok: true, kept, deleted };
+  }
+
+  // Classify every sheet in a workbook and build two pivot maps.
+  // Returns {
+  //   piping: Map<code,qty>, nonPiping: Map<code,qty>,
+  //   sheets: [{ name, group: 'piping'|'nonPiping'|'skipped', kept, deleted }]
+  // }
+  function pivotBoms(workbook) {
+    const piping = new Map();
+    const nonPiping = new Map();
+    const sheets = [];
+
+    workbook.SheetNames.forEach((name) => {
+      const ws = workbook.Sheets[name];
+      const target = isPipingSheetName(name) ? piping : nonPiping;
+      const res = accumulateBomSheet(ws, target);
+      if (!res.ok) {
+        sheets.push({ name, group: "skipped", kept: 0, deleted: 0 });
+      } else {
+        sheets.push({
+          name,
+          group: isPipingSheetName(name) ? "piping" : "nonPiping",
+          kept: res.kept,
+          deleted: res.deleted,
+        });
+      }
+    });
+
+    return { piping, nonPiping, sheets };
+  }
+
+  // Turn a Map<code,qty> into a sorted [{ code, qty }] array.
+  function mapToSortedRows(map) {
+    return Array.from(map.entries())
+      .sort((a, b) =>
+        a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: "base" })
+      )
+      .map(([code, qty]) => ({ code, qty }));
+  }
+
   // ---- Parsing ------------------------------------------------------------
 
   // Reads column A (item code) and column B (qty). Row 1 is a header, skipped.
@@ -313,6 +420,43 @@
     else downloadXlsx(rows, hasOnHand, base);
   }
 
+  // ---- Pivot downloads ----------------------------------------------------
+
+  const PIVOT_HEADER = ["Item Code", "Qty"];
+
+  // Download both pivot tables in one workbook (two sheets).
+  async function downloadPivotXlsx(nonPipingRows, pipingRows, filenameBase) {
+    const wb = new ExcelJS.Workbook();
+
+    const addSheet = (title, rows) => {
+      const ws = wb.addWorksheet(title);
+      ws.addRow(PIVOT_HEADER);
+      ws.getRow(1).font = { bold: true };
+      rows.forEach((r) => ws.addRow([r.code, r.qty]));
+      ws.columns = [{ width: 20 }, { width: 12 }];
+      ws.views = [{ state: "frozen", ySplit: 1 }];
+    };
+
+    addSheet("Non-Piping BOM", nonPipingRows);
+    addSheet("Piping BOM", pipingRows);
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    triggerDownload(blob, `${filenameBase || "master_bom"}_${stamp()}.xlsx`);
+  }
+
+  // Download a single pivot table as CSV.
+  function downloadPivotCsv(rows, filenameBase) {
+    const lines = [PIVOT_HEADER.map(csvCell).join(",")];
+    rows.forEach((r) => lines.push([r.code, r.qty].map(csvCell).join(",")));
+    const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    triggerDownload(blob, `${filenameBase || "master_bom"}_${stamp()}.csv`);
+  }
+
   // ---- Public API ---------------------------------------------------------
 
   global.MasterPlanner = {
@@ -327,5 +471,12 @@
     summaryText,
     download,
     triggerDownload,
+    // BOM pivot
+    isDeletedRemark,
+    isPipingSheetName,
+    pivotBoms,
+    mapToSortedRows,
+    downloadPivotXlsx,
+    downloadPivotCsv,
   };
 })(window);

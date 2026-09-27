@@ -233,3 +233,32 @@ td.status.red    { background: #ef4444; color: #2a0000; }
 td.status.yellow { background: #f59e0b; color: #3a2500; }
 td.status.green  { background: #22c55e; color: #04220f; }
 td.status.none   { color: var(--muted); }
+
+/* ---- BOM Pivot page ---- */
+.sheet-report {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.pivot-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+.pivot-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.pivot-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.pivot-head h2 { margin: 0; font-size: 18px; }
