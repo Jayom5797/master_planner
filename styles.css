@@ -49,6 +49,7 @@ body {
   padding: 16px;
 }
 .upload-title { font-weight: 600; margin-bottom: 12px; }
+.opt { color: var(--muted); font-weight: 400; font-size: 12px; }
 
 .file-drop {
   display: flex;
@@ -117,6 +118,26 @@ body {
 
 .summary { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
 
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid rgba(0,0,0,.2);
+}
+.swatch.red { background: #ef4444; }
+.swatch.yellow { background: #f59e0b; }
+.swatch.green { background: #22c55e; }
+
 .table-wrap {
   overflow: auto;
   border: 1px solid var(--border);
@@ -145,5 +166,10 @@ tbody td {
 }
 tbody td:first-child { text-align: left; font-family: ui-monospace, monospace; }
 tbody tr:hover { background: var(--panel); }
-tbody tr.shortage td { color: #fca5a5; }
-tbody tr.shortage td:first-child::after { content: " ⚠"; }
+
+/* Store-status cell fills (match the downloaded Excel) */
+td.status { font-weight: 600; text-align: center; }
+td.status.red    { background: #ef4444; color: #2a0000; }
+td.status.yellow { background: #f59e0b; color: #3a2500; }
+td.status.green  { background: #22c55e; color: #04220f; }
+td.status.none   { color: var(--muted); }
