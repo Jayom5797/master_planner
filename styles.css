@@ -22,6 +22,30 @@ body {
   line-height: 1.5;
 }
 
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.nav-brand { font-weight: 700; font-size: 16px; color: var(--accent); }
+.nav-links { display: flex; gap: 8px; }
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background .15s, color .15s;
+}
+.nav-link:hover { background: var(--panel-2); color: var(--text); }
+.nav-link.active { background: var(--accent-strong); color: #041019; font-weight: 600; }
+
 .app-header {
   padding: 28px 24px 12px;
   text-align: center;
@@ -50,6 +74,33 @@ body {
 }
 .upload-title { font-weight: 600; margin-bottom: 12px; }
 .opt { color: var(--muted); font-weight: 400; font-size: 12px; }
+
+.uploads.single { grid-template-columns: 1fr; }
+.upload-card.wide { max-width: 640px; margin: 0 auto; width: 100%; }
+
+.mapping {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.mapping-title { font-weight: 600; margin-bottom: 4px; }
+.mapping-hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+.map-row { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.map-row select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
 
 .file-drop {
   display: flex;

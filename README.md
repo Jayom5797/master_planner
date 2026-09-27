@@ -36,9 +36,16 @@ Colors appear both in the on-screen table and as real cell fills in the download
 - **Generate requires the BOM plus at least one of PO or PR.** On Hand is optional.
 - If On Hand is not provided, the Store Status column is left blank.
 
+## Pages
+- **Multi-File** (`index.html`) — one Excel/CSV per stage (BOM, PO, PR, On Hand).
+- **Single File** (`single.html`) — one workbook with multiple sheets. You map each role (BOM/PO/PR/On Hand) to a sheet; it defaults to sheet order (Sheet1=BOM, Sheet2=PO, Sheet3=PR, Sheet4=On Hand) and lets you override.
+
+Both pages share the same merge/status/download logic in `core.js` and are linked from a top navbar.
+
 ## Tech
 - Plain HTML/CSS/JS, no build step, no backend.
-- [SheetJS](https://sheetjs.com/) via CDN for reading/writing spreadsheets.
+- [SheetJS](https://sheetjs.com/) via CDN for reading spreadsheets.
+- [ExcelJS](https://github.com/exceljs/exceljs) via CDN for writing color-filled Excel output.
 - Runs entirely in the browser.
 
 ## Local use

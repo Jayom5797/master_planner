@@ -3,59 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Master Planner — BOM vs PO / PR / On Hand</title>
+  <title>Master Planner — Single File (multi-sheet)</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-brand">Master Planner</div>
     <div class="nav-links">
-      <a href="index.html" class="nav-link active">Multi-File</a>
-      <a href="single.html" class="nav-link">Single File</a>
+      <a href="index.html" class="nav-link">Multi-File</a>
+      <a href="single.html" class="nav-link active">Single File</a>
     </div>
   </nav>
 
   <header class="app-header">
-    <h1>Multi-File Merge</h1>
-    <p class="subtitle">One Excel/CSV per stage: BOM, PO, PR &amp; On Hand</p>
+    <h1>Single File Merge</h1>
+    <p class="subtitle">One workbook with multiple sheets (BOM, PO, PR, On Hand)</p>
   </header>
 
   <main class="container">
-    <section class="uploads">
-      <div class="upload-card" data-key="bom">
-        <div class="upload-title">1. Engineering BOM</div>
+    <section class="uploads single">
+      <div class="upload-card wide" data-key="workbook">
+        <div class="upload-title">Workbook (.xlsx / .xls)</div>
         <label class="file-drop">
-          <input type="file" accept=".xlsx,.xls,.csv" data-input="bom" />
-          <span class="file-drop-text">Click or drop Excel/CSV</span>
+          <input type="file" accept=".xlsx,.xls" id="workbookInput" />
+          <span class="file-drop-text">Click or drop a single Excel file with multiple sheets</span>
         </label>
-        <div class="file-status" data-status="bom">No file</div>
+        <div class="file-status" id="workbookStatus">No file</div>
       </div>
+    </section>
 
-      <div class="upload-card" data-key="po">
-        <div class="upload-title">2. PO Stage</div>
-        <label class="file-drop">
-          <input type="file" accept=".xlsx,.xls,.csv" data-input="po" />
-          <span class="file-drop-text">Click or drop Excel/CSV</span>
+    <section id="mapping" class="mapping" hidden>
+      <div class="mapping-title">Map each role to a sheet</div>
+      <p class="mapping-hint">
+        Each sheet must have item code in column A and qty in column B.
+        Set a role to <em>None</em> to skip it. BOM plus at least one of PO or PR is required.
+      </p>
+      <div class="mapping-grid">
+        <label class="map-row">
+          <span>1. Engineering BOM</span>
+          <select data-role="bom"></select>
         </label>
-        <div class="file-status" data-status="po">No file</div>
-      </div>
-
-      <div class="upload-card" data-key="pr">
-        <div class="upload-title">3. PR Stage</div>
-        <label class="file-drop">
-          <input type="file" accept=".xlsx,.xls,.csv" data-input="pr" />
-          <span class="file-drop-text">Click or drop Excel/CSV</span>
+        <label class="map-row">
+          <span>2. PO Stage</span>
+          <select data-role="po"></select>
         </label>
-        <div class="file-status" data-status="pr">No file</div>
-      </div>
-
-      <div class="upload-card" data-key="onhand">
-        <div class="upload-title">4. On Hand <span class="opt">(optional)</span></div>
-        <label class="file-drop">
-          <input type="file" accept=".xlsx,.xls,.csv" data-input="onhand" />
-          <span class="file-drop-text">Click or drop Excel/CSV</span>
+        <label class="map-row">
+          <span>3. PR Stage</span>
+          <select data-role="pr"></select>
         </label>
-        <div class="file-status" data-status="onhand">No file</div>
+        <label class="map-row">
+          <span>4. On Hand <span class="opt">(optional)</span></span>
+          <select data-role="onhand"></select>
+        </label>
       </div>
     </section>
 
@@ -98,6 +97,6 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
   <script src="core.js"></script>
-  <script src="app.js"></script>
+  <script src="single.js"></script>
 </body>
 </html>
