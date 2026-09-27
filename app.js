@@ -147,8 +147,11 @@ function generate() {
     return;
   }
 
+  // Rows come from BOM/PO/PR only. On Hand is a lookup source, not a row
+  // source — the store inventory holds many items outside this project's plan,
+  // so we never add a row just because it exists in On Hand.
   const codes = new Set();
-  [store.bom, store.po, store.pr, store.onhand].forEach((m) => {
+  [store.bom, store.po, store.pr].forEach((m) => {
     if (m) for (const code of m.keys()) codes.add(code);
   });
 
