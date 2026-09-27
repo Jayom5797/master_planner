@@ -78,6 +78,15 @@ body {
 .uploads.single { grid-template-columns: 1fr; }
 .upload-card.wide { max-width: 640px; margin: 0 auto; width: 100%; }
 
+.template-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.template-hint { color: var(--muted); font-size: 13px; }
+
 .mapping {
   background: var(--panel);
   border: 1px solid var(--border);

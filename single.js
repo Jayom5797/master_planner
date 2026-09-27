@@ -23,6 +23,7 @@ const els = {
   summary: document.getElementById("summary"),
   legend: document.getElementById("legend"),
   tbody: document.querySelector("#resultTable tbody"),
+  downloadTemplate: document.getElementById("downloadTemplateBtn"),
 };
 
 const selects = {};
@@ -39,6 +40,21 @@ els.generate.addEventListener("click", generate);
 els.downloadXlsx.addEventListener("click", () => doDownload("xlsx"));
 els.downloadCsv.addEventListener("click", () => doDownload("csv"));
 els.reset.addEventListener("click", resetAll);
+els.downloadTemplate.addEventListener("click", downloadTemplate);
+
+// ---- Blank template -------------------------------------------------------
+
+// Empty workbook with four sheets (BOM, PO, PR, ON HAND) and no headers —
+// the user pastes columns straight from their ERP, headers included.
+async function downloadTemplate() {
+  const wb = new ExcelJS.Workbook();
+  ["BOM", "PO", "PR", "ON HAND"].forEach((name) => wb.addWorksheet(name));
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  MP.triggerDownload(blob, "master_planner_template.xlsx");
+}
 
 // ---- Load workbook & build the sheet mapping ------------------------------
 
